@@ -1,7 +1,6 @@
 Flask
 gunicorn
 wtforms
-math
 numpy
 matplotlib.pyplot
 matplotlib.image
