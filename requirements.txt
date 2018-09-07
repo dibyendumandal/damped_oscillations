@@ -2,8 +2,7 @@ Flask
 gunicorn
 wtforms
 numpy
-matplotlib.pyplot
-matplotlib.image
+matplotlib
 sys
 os
 time
