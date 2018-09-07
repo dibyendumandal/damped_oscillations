@@ -3,6 +3,5 @@ gunicorn
 wtforms
 numpy
 matplotlib
-os
 time
 glob
