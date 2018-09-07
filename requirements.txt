@@ -3,5 +3,4 @@ gunicorn
 wtforms
 numpy
 matplotlib
-time
 glob
