@@ -5,6 +5,7 @@ import sys
 from numpy import exp, cos, linspace
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+matplotlib.use('Agg')
 import os, time, glob
 
 # model
