@@ -4,9 +4,10 @@ from math import pi
 import sys
 from numpy import exp, cos, linspace
 import matplotlib
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-matplotlib.use('Agg')
 import os, time, glob
 
 # model
