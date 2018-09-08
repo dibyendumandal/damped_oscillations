@@ -1,67 +1,77 @@
 from flask import Flask, render_template, request
-from wtforms import Form, FloatField, validators
-from math import pi
-import sys
-from numpy import exp, cos, linspace
+from wtforms import Form, TextField, BooleanField, validators
+import sys, os, time, glob
+import pandas as pd
 import matplotlib
-# Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import os, time, glob
 
-# model
+
 class InputForm(Form):
-    A = FloatField(
-        label='amplitude (m)', default=1.0,
-        validators=[validators.InputRequired()])
-    b = FloatField(
-        label='damping factor (kg/s)', default=0,
-        validators=[validators.InputRequired()])
-    w = FloatField(
-        label='frequency (1/s)', default=2*pi,
-        validators=[validators.InputRequired()])
-    T = FloatField(
-        label='time interval (s)', default=18,
-        validators=[validators.InputRequired()])
+    name =  TextField(
+            label='AAPL/AMZN/FB/GOOG/WMT',
+            default='AAPL',
+            validators=[validators.InputRequired()])
+    open =  BooleanField(
+            label='OPENING PRICE',
+            default=False,
+            #validators=[validators.InputRequired()]
+            )
+    high =  BooleanField(
+            label='HIGHEST PRICE',
+            default=False,
+            # validators=[validators.InputRequired()]
+            )
+    low =   BooleanField(
+            label='LOWEST PRICE',
+            default=False,
+            # validators=[validators.InputRequired()]
+            )
+    close = BooleanField(
+            label='CLOSING PRICE',
+            default=False,
+            #validators=[validators.InputRequired()]
+            )
 
-# compute
-def damped_vibrations(t, A, b, w):
-    return A*exp(-b*t)*cos(w*t)
-
-def compute(A, b, w, T, resolution=500):
+def generate_plot(company, variables_needed):
     """Return filename of plot of the damped_vibration function."""
-    t = linspace(0, T, resolution+1)
-    u = damped_vibrations(t, A, b, w)
-    fig = plt.figure()  # needed to avoid adding curves in plot
-    plt.plot(t, u)
-    plt.title('A=%g, b=%g, w=%g' % (A, b, w))
+    data = pd.read_csv(company+'_short.csv', index_col=0,
+                       parse_dates=True)
+    data = data[variables_needed]
+    data = data.iloc[:30, :]
+    plt.figure()
+    data.plot()
+    plt.ylabel('Price')
+    plt.title(company.upper()+' stock price over a month')
     if not os.path.isdir('static'):
         os.mkdir('static')
     else:
-        # Remove old plot files
         for filename in glob.glob(os.path.join('static', '*.png')):
             os.remove(filename)
-    # Use time since Jan 1, 1970 in filename in order make
-    # a unique filename that the browser has not chached
+
     plotfile = os.path.join('static', str(time.time()) + '.png')
-    fig.savefig(plotfile)
+    plt.savefig(plotfile)
     return plotfile
 
-# view/control
-'''
-try:
-    template_name = sys.argv[1]
-except IndexError:
-    template_name = 'view4'
-'''
+
 app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = InputForm(request.form)
     if request.method == 'POST' and form.validate():
-        result = compute(form.A.data, form.b.data,
-                         form.w.data, form.T.data)
+        name_map = {"AAPL": 'apple',
+                    "AMZN": 'amazon',
+                    "FB": 'facebook',
+                    "GOOG": 'google',
+                    "WMT": 'walmart'}
+        company = name_map[form.name.data]
+        variables_needed = []
+        if form.open.data: variables_needed.append('Open')
+        if form.high.data: variables_needed.append('High')
+        if form.low.data: variables_needed.append('Low')
+        if form.close.data: variables_needed.append('Close')
+        result = generate_plot(company, variables_needed)
     else:
         result = None
 
