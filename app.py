@@ -3,6 +3,7 @@ from wtforms import Form, FloatField, validators
 from math import pi
 import sys
 from numpy import exp, cos, linspace
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 matplotlib.use('Agg')
